@@ -22,6 +22,26 @@ public class LoginController {
             model.addAttribute("mensaje", "Sesión cerrada correctamente.");
         }
 
-        return "auth/login";  // La plantilla login.html debe estar en templates/auth/login.html
+        return "auth/login";  // Asegúrate que login.html esté en /templates/auth/login.html
+    }
+
+    @GetMapping("/auth/registro")
+    public String mostrarFormularioRegistro() {
+        return "auth/registro";  // Asegúrate que registro.html esté en /templates/auth/registro.html
+    }
+
+    @GetMapping("/auth/recuperar")
+    public String mostrarFormularioRecuperar() {
+        return "recuperar/recuperar";  // Asegúrate que recuperar.html esté en /templates/recuperar/recuperar.html
+    }
+
+    @GetMapping("/auth/pregunta-seguridad")
+    public String mostrarFormularioPreguntaSeguridad() {
+        return "recuperar/preguntaSeguridad";  // Asegúrate que preguntaSeguridad.html esté en /templates/recuperar/preguntaSeguridad.html
+    }
+
+    @GetMapping("/auth/cambiar-password")
+    public String mostrarFormularioCambiarPassword() {
+        return "recuperar/cambiarPassword";  // Asegúrate que cambiarPassword.html esté en /templates/recuperar/cambiarPassword.html
     }
 }
