@@ -108,7 +108,6 @@ public class RecuperarPasswordController {
     public String procesarRecuperar(@RequestParam("email") String email, Model model) {
         return "redirect:/recuperar/pregunta?email=" + email;
     }
-
     @PostMapping("/recuperar/cambiarPassword")
     public String cambiarPassword(@RequestParam("email") String email,
                                   @RequestParam("nuevaPassword") String nuevaPassword,
@@ -120,6 +119,15 @@ public class RecuperarPasswordController {
 
         if (usuarioOptional.isPresent()) {
             Usuario usuario = usuarioOptional.get();
+
+            // Verificamos si la contraseña cumple con los requisitos
+            if (!esContraseñaValida(nuevaPassword)) {
+                System.out.println("❌ La contraseña no cumple con los requisitos de seguridad.");
+                model.addAttribute("error", "La contraseña no cumple con los requisitos de seguridad. Debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.");
+                model.addAttribute("email", email);
+                return "recuperar/cambiarPassword";  // Redirigir a la misma vista con el mensaje de error
+            }
+
             usuario.setContraseña(passwordEncoder.encode(nuevaPassword));
             usuarioRepository.save(usuario);
 
@@ -131,5 +139,18 @@ public class RecuperarPasswordController {
             model.addAttribute("error", "No se encontró un usuario con ese correo.");
             return "recuperar/recuperar";
         }
+    }
+
+    /**
+     * Valida si la contraseña cumple con los requisitos de seguridad.
+     */
+    private boolean esContraseñaValida(String contraseña) {
+        if (contraseña.length() < 8) return false;
+        boolean tieneMayuscula = contraseña.chars().anyMatch(Character::isUpperCase);
+        boolean tieneMinuscula = contraseña.chars().anyMatch(Character::isLowerCase);
+        boolean tieneNumero = contraseña.chars().anyMatch(Character::isDigit);
+        boolean tieneEspecial = contraseña.matches(".*[!@#$%^&*()-+].*");
+
+        return tieneMayuscula && tieneMinuscula && tieneNumero && tieneEspecial;
     }
 }
