@@ -10,8 +10,14 @@
     <h2>Bienvenido al Sistema de Gestión de Prácticas</h2>
 
     <div class="alert alert-info">
-        <p><strong>Usuario autenticado:</strong> <span th:text="${usuario.username}"></span></p>
-        <p><strong>Roles:</strong> <span th:text="${usuario.authorities}"></span></p>
+        <p><strong>Usuario autenticado:</strong>
+            <span th:if="${usuario != null}" th:text="${usuario.username}"></span>
+            <span th:unless="${usuario != null}">No indentificado</span>
+        </p>
+        <p><strong>Roles:</strong>
+            <span th:if="${usuario != null}" th:text="${usuario.authorities}"></span>
+            <span th:unless="${usuario != null}">Ninguno</span>
+        </p>
     </div>
 
     <h4>Menú Principal</h4>

@@ -11,7 +11,14 @@ public class HomeController {
 
     @GetMapping("/")
     public String mostrarHome(Model model, @AuthenticationPrincipal UserDetails usuarioAutenticado) {
+        if (usuarioAutenticado == null) {
+            // Si no hay sesión activa, redirigimos al login
+            return "redirect:/auth/login";
+        }
+
+        // Pasamos el usuario al modelo para que Thymeleaf lo pueda usar
         model.addAttribute("usuario", usuarioAutenticado);
+
         return "home/index";  // apunta a templates/home/index.html
     }
 }
