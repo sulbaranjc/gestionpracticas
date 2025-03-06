@@ -2,9 +2,6 @@ package com.personal.gestionpracticas.dto;
 
 import lombok.Data;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 @Data
 public class RegistroUsuarioDTO {
 
@@ -13,6 +10,13 @@ public class RegistroUsuarioDTO {
     private String email;
     private String contraseña;
 
-    // Cambio clave: Mapa de preguntas y respuestas
-    private Map<String, String> preguntasRespuestas = new LinkedHashMap<>();
+    // Enfoque reformulado: preguntas y respuestas separadas (no map)
+    private String pregunta1;
+    private String respuesta1;
+
+    private String pregunta2;
+    private String respuesta2;
+
+    private String pregunta3;
+    private String respuesta3;
 }

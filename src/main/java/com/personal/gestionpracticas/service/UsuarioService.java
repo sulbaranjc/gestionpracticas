@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -28,19 +26,17 @@ public class UsuarioService {
             return "La contraseña no cumple con los requisitos de seguridad.";
         }
 
-        Map<String, String> preguntasRespuestas = new HashMap<>();
-
-        dto.getPreguntasRespuestas().forEach((pregunta, respuesta) -> {
-            String respuestaNormalizada = respuesta.trim().toLowerCase();
-            preguntasRespuestas.put(pregunta, passwordEncoder.encode(respuestaNormalizada));
-        });
-
         Usuario usuario = Usuario.builder()
                 .nombre(dto.getNombre())
                 .apellido(dto.getApellido())
                 .email(dto.getEmail())
                 .contraseña(passwordEncoder.encode(dto.getContraseña()))
-                .preguntasRespuestas(preguntasRespuestas)
+                .pregunta1(dto.getPregunta1())
+                .pregunta2(dto.getPregunta2())
+                .pregunta3(dto.getPregunta3())
+                .respuesta1(passwordEncoder.encode(dto.getRespuesta1().trim().toLowerCase()))
+                .respuesta2(passwordEncoder.encode(dto.getRespuesta2().trim().toLowerCase()))
+                .respuesta3(passwordEncoder.encode(dto.getRespuesta3().trim().toLowerCase()))
                 .rol(Usuario.Rol.USER)
                 .build();
 

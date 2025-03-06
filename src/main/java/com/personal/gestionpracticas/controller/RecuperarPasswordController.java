@@ -25,19 +25,25 @@ public class RecuperarPasswordController {
 
         if (usuarioOptional.isPresent()) {
             Usuario usuario = usuarioOptional.get();
-            Map<String, String> preguntasSeguridad = usuario.getPreguntasRespuestas();
 
-            System.out.println("Preguntas de seguridad recuperadas: " + preguntasSeguridad);
+            List<String> preguntas = Arrays.asList(
+                    usuario.getPregunta1(),
+                    usuario.getPregunta2(),
+                    usuario.getPregunta3()
+            );
 
-            if (preguntasSeguridad == null || preguntasSeguridad.isEmpty()) {
+            if (preguntas.stream().allMatch(Objects::isNull)) {
                 System.out.println("⚠️ El usuario no tiene preguntas configuradas.");
                 model.addAttribute("error", "Este usuario no tiene preguntas de seguridad configuradas.");
                 return "recuperar/recuperar";
             }
 
-            List<String> preguntas = new ArrayList<>(preguntasSeguridad.keySet());
             Random random = new Random();
-            String preguntaSeleccionada = preguntas.get(random.nextInt(preguntas.size()));
+            String preguntaSeleccionada = preguntas.get(random.nextInt(3));
+
+            while (preguntaSeleccionada == null) {
+                preguntaSeleccionada = preguntas.get(random.nextInt(3));
+            }
 
             System.out.println("Pregunta seleccionada: " + preguntaSeleccionada);
 
@@ -67,30 +73,27 @@ public class RecuperarPasswordController {
 
         if (usuarioOptional.isPresent()) {
             Usuario usuario = usuarioOptional.get();
-            Map<String, String> preguntasSeguridad = usuario.getPreguntasRespuestas();
 
-            System.out.println("Preguntas de seguridad del usuario: " + preguntasSeguridad);
+            String respuestaCorrecta = null;
 
-            if (preguntasSeguridad != null && preguntasSeguridad.containsKey(pregunta)) {
-                String respuestaAlmacenada = preguntasSeguridad.get(pregunta);
+            if (pregunta.equals(usuario.getPregunta1())) {
+                respuestaCorrecta = usuario.getRespuesta1();
+            } else if (pregunta.equals(usuario.getPregunta2())) {
+                respuestaCorrecta = usuario.getRespuesta2();
+            } else if (pregunta.equals(usuario.getPregunta3())) {
+                respuestaCorrecta = usuario.getRespuesta3();
+            }
 
-                System.out.println("Respuesta almacenada (hasheada): " + respuestaAlmacenada);
-
-                if (respuestaAlmacenada != null && passwordEncoder.matches(respuesta, respuestaAlmacenada)) {
-                    System.out.println("✅ Respuesta correcta. Redirigiendo a cambio de contraseña.");
-                    model.addAttribute("email", email);
-                    return "recuperar/cambiarPassword";
-                } else {
-                    System.out.println("❌ Respuesta incorrecta.");
-                    model.addAttribute("email", email);
-                    model.addAttribute("preguntaSeleccionada", pregunta);
-                    model.addAttribute("error", "Respuesta incorrecta. Inténtalo nuevamente.");
-                    return "recuperar/preguntaSeguridad";
-                }
+            if (respuestaCorrecta != null && passwordEncoder.matches(respuesta, respuestaCorrecta)) {
+                System.out.println("✅ Respuesta correcta. Redirigiendo a cambio de contraseña.");
+                model.addAttribute("email", email);
+                return "recuperar/cambiarPassword";
             } else {
-                System.out.println("⚠️ No se encontró la pregunta seleccionada en las preguntas guardadas.");
-                model.addAttribute("error", "No se encontró la pregunta seleccionada.");
-                return "recuperar/recuperar";
+                System.out.println("❌ Respuesta incorrecta.");
+                model.addAttribute("email", email);
+                model.addAttribute("preguntaSeleccionada", pregunta);
+                model.addAttribute("error", "Respuesta incorrecta. Inténtalo nuevamente.");
+                return "recuperar/preguntaSeguridad";
             }
         } else {
             System.out.println("❌ No se encontró un usuario con el email: " + email);
@@ -108,6 +111,7 @@ public class RecuperarPasswordController {
     public String procesarRecuperar(@RequestParam("email") String email, Model model) {
         return "redirect:/recuperar/pregunta?email=" + email;
     }
+
     @PostMapping("/recuperar/cambiarPassword")
     public String cambiarPassword(@RequestParam("email") String email,
                                   @RequestParam("nuevaPassword") String nuevaPassword,
@@ -120,12 +124,11 @@ public class RecuperarPasswordController {
         if (usuarioOptional.isPresent()) {
             Usuario usuario = usuarioOptional.get();
 
-            // Verificamos si la contraseña cumple con los requisitos
             if (!esContraseñaValida(nuevaPassword)) {
                 System.out.println("❌ La contraseña no cumple con los requisitos de seguridad.");
                 model.addAttribute("error", "La contraseña no cumple con los requisitos de seguridad. Debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.");
                 model.addAttribute("email", email);
-                return "recuperar/cambiarPassword";  // Redirigir a la misma vista con el mensaje de error
+                return "recuperar/cambiarPassword";
             }
 
             usuario.setContraseña(passwordEncoder.encode(nuevaPassword));
@@ -141,9 +144,6 @@ public class RecuperarPasswordController {
         }
     }
 
-    /**
-     * Valida si la contraseña cumple con los requisitos de seguridad.
-     */
     private boolean esContraseñaValida(String contraseña) {
         if (contraseña.length() < 8) return false;
         boolean tieneMayuscula = contraseña.chars().anyMatch(Character::isUpperCase);

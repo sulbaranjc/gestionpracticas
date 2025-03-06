@@ -3,9 +3,6 @@ package com.personal.gestionpracticas.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Entity
 @Data
 @NoArgsConstructor
@@ -37,10 +34,22 @@ public class Usuario {
         ADMIN, USER
     }
 
-    // Cambio clave: Mapeo de preguntas y respuestas en una tabla relacional
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "preguntas_seguridad", joinColumns = @JoinColumn(name = "usuario_id"))
-    @MapKeyColumn(name = "pregunta")
-    @Column(name = "respuesta")
-    private Map<String, String> preguntasRespuestas = new HashMap<>();
+    // Nuevos campos para preguntas y respuestas
+    @Column(nullable = false)
+    private String pregunta1;
+
+    @Column(nullable = false)
+    private String pregunta2;
+
+    @Column(nullable = false)
+    private String pregunta3;
+
+    @Column(nullable = false)
+    private String respuesta1;
+
+    @Column(nullable = false)
+    private String respuesta2;
+
+    @Column(nullable = false)
+    private String respuesta3;
 }
